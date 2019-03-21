@@ -1,7 +1,7 @@
 <#--
 
     Solo - A small and beautiful blogging system written in Java.
-    Copyright (c) 2010-2018, b3log.org & hacpai.com
+    Copyright (c) 2010-2019, b3log.org & hacpai.com
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -19,22 +19,24 @@
 -->
 <#include "macro-common-page.ftl">
 
-<@commonPage "403 Forbidden!">
-${killBrowserLabel}
-<br/>
-&nbsp; &nbsp;&nbsp; <button onclick="closeIframe();">${closeLabel}</button> &nbsp; &nbsp;
-<button onclick="closeIframeForever();">${closeForeverLabel}</button>
-<img src='${staticServePath}/images/kill-browser.png' title='Kill IE6' style="float: right;
-    margin: -171px 0 0 0;" alt='Kill IE6'/>
+<@commonPage "Kill IE!">
+<div class="kill">
+    ${killBrowserLabel}
+    <div class="kill__btns">
+        <button onclick="closeIframe();">${closeLabel}</button> &nbsp;
+        <button onclick="closeIframeForever();">${closeForeverLabel}</button>
+    </div>
+    <img src='${staticServePath}/images/kill-browser.png' title='Kill IE6' class="kill__img" alt='Kill IE6'/>
+</div>
 <script>
     var closeIframe = function () {
-        window.parent.$("iframe").prev().remove();
-        window.parent.$("iframe").remove();
-    };
+        window.parent.$('iframe').prev().remove()
+        window.parent.$('iframe').remove()
+    }
 
     var closeIframeForever = function () {
-        window.parent.Cookie.createCookie("showKill", true, 365);
-        closeIframe();
-    };
+        window.parent.Cookie.createCookie('showKill', true, 365)
+        closeIframe()
+    }
 </script>
 </@commonPage>

@@ -1,6 +1,6 @@
 /*
  * Solo - A small and beautiful blogging system written in Java.
- * Copyright (c) 2010-2018, b3log.org & hacpai.com
+ * Copyright (c) 2010-2019, b3log.org & hacpai.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ package org.b3log.solo.model;
  * This class defines all page model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.0.0, Sep 21, 2017
+ * @version 1.1.0.1, Feb 6, 2019
  * @since 0.3.1
  */
 public final class Page {
@@ -105,11 +105,6 @@ public final class Page {
      * </p>
      */
     public static final String PAGE_OPEN_TARGET = "pageOpenTarget";
-
-    /**
-     * Key of page editor type.
-     */
-    public static final String PAGE_EDITOR_TYPE = "pageEditorType";
 
     /**
      * Key of icon URL.

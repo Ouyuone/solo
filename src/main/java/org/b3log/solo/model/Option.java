@@ -1,6 +1,6 @@
 /*
  * Solo - A small and beautiful blogging system written in Java.
- * Copyright (c) 2010-2018, b3log.org & hacpai.com
+ * Copyright (c) 2010-2019, b3log.org & hacpai.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,20 +17,16 @@
  */
 package org.b3log.solo.model;
 
-import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.Set;
 
 /**
  * This class defines option model relevant keys.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.3.0.9, Sep 21, 2018
+ * @author <a href="https://github.com/hzchendou">hzchendou</a>
+ * @version 1.5.0.5, Mar 17, 2019
  * @since 0.6.0
  */
 public final class Option {
@@ -57,29 +53,14 @@ public final class Option {
 
     // oId constants
     /**
-     * Key of broadcast chance expiration time.
+     * Key of favicon URL.
      */
-    public static final String ID_C_BROADCAST_CHANCE_EXPIRATION_TIME = "broadcastChanceExpirationTime";
+    public static final String ID_C_FAVICON_URL = "faviconURL";
 
     /**
-     * Key of Qiniu access key.
+     * Key of custom vars.
      */
-    public static final String ID_C_QINIU_ACCESS_KEY = "qiniuAccessKey";
-
-    /**
-     * Key of Qiniu secret key.
-     */
-    public static final String ID_C_QINIU_SECRET_KEY = "qiniuSecretKey";
-
-    /**
-     * Key of Qiniu domain.
-     */
-    public static final String ID_C_QINIU_DOMAIN = "qiniuDomain";
-
-    /**
-     * Key of Qiniu bucket.
-     */
-    public static final String ID_C_QINIU_BUCKET = "qiniuBucket";
+    public static final String ID_C_CUSTOM_VARS = "customVars";
 
     /**
      * Key of blog title.
@@ -142,11 +123,6 @@ public final class Option {
     public static final String ID_C_ARTICLE_LIST_PAGINATION_WINDOW_SIZE = "articleListPaginationWindowSize";
 
     /**
-     * Key of administrator's email.
-     */
-    public static final String ID_C_ADMIN_EMAIL = "adminEmail";
-
-    /**
      * Key of locale string.
      */
     public static final String ID_C_LOCALE_STRING = "localeString";
@@ -187,19 +163,9 @@ public final class Option {
     public static final String ID_C_SIGNS = "signs";
 
     /**
-     * Key of key of Solo.
-     */
-    public static final String ID_C_KEY_OF_SOLO = "keyOfSolo";
-
-    /**
      * Key of allow visit draft via permalink.
      */
     public static final String ID_C_ALLOW_VISIT_DRAFT_VIA_PERMALINK = "allowVisitDraftViaPermalink";
-
-    /**
-     * Key of allow register.
-     */
-    public static final String ID_C_ALLOW_REGISTER = "allowRegister";
 
     /**
      * Key of version.
@@ -242,19 +208,6 @@ public final class Option {
     public static final String ID_C_FEED_OUTPUT_CNT = "feedOutputCnt";
 
     /**
-     * Key of editor type.
-     * <p>
-     * Optional values:
-     * <ul>
-     * <li>"tinyMCE"</li>
-     * <li>"CodeMirror-Markdown"</li>
-     * <li>"KindEditor"</li>
-     * </ul>
-     * </p>
-     */
-    public static final String ID_C_EDITOR_TYPE = "editorType";
-
-    /**
      * Key of skins.
      */
     public static final String ID_C_SKINS = "skins";
@@ -270,16 +223,6 @@ public final class Option {
     public static final String ID_C_SKIN_NAME = "skinName";
 
     /**
-     * Key of reply notification template body.
-     */
-    public static final String ID_C_REPLY_NOTI_TPL_BODY = "replyNotiTplBody";
-
-    /**
-     * Key of reply notification template subject.
-     */
-    public static final String ID_C_REPLY_NOTI_TPL_SUBJECT = "replyNotiTplSubject";
-
-    /**
      * Key of footer content.
      */
     public static final String ID_C_FOOTER_CONTENT = "footerContent";
@@ -290,65 +233,36 @@ public final class Option {
     public static final String ID_C_STATISTIC_BLOG_VIEW_COUNT = "statisticBlogViewCount";
 
     /**
-     * Key of statistic blog comment count.
+     * Key of GitHub repos.
      */
-    public static final String ID_C_STATISTIC_BLOG_COMMENT_COUNT = "statisticBlogCommentCount";
-
-    /**
-     * Key of statistic blog comment(published article) count.
-     */
-    public static final String ID_C_STATISTIC_PUBLISHED_BLOG_COMMENT_COUNT = "statisticPublishedBlogCommentCount";
-
-    /**
-     * Key of statistic blog article count.
-     */
-    public static final String ID_C_STATISTIC_BLOG_ARTICLE_COUNT = "statisticBlogArticleCount";
-
-    /**
-     * Key of statistic blog published article count.
-     */
-    public static final String ID_C_STATISTIC_PUBLISHED_ARTICLE_COUNT = "statisticPublishedBlogArticleCount";
-
-    /**
-     * Key of oauth GitHub.
-     */
-    public static final String ID_C_OAUTH_GITHUB = "oauthGitHub";
+    public static final String ID_C_GITHUB_REPOS = "githubRepos";
 
     // Category constants
     /**
-     * Broadcast.
-     */
-    public static final String CATEGORY_C_BROADCAST = "broadcast";
-
-    /**
-     * Qiniu.
-     */
-    public static final String CATEGORY_C_QINIU = "qiniu";
-
-    /**
-     * Preference.
+     * Category - Preference.
      */
     public static final String CATEGORY_C_PREFERENCE = "preference";
 
     /**
-     * Statistic.
+     * Category - Statistic.
      */
     public static final String CATEGORY_C_STATISTIC = "statistic";
 
     /**
-     * OAuth.
+     * Category - GitHub.
      */
-    public static final String CATEGORY_C_OAUTH = "oauth";
+    public static final String CATEGORY_C_GITHUB = "github";
 
-    public static String getOAuthPair(final Set<String> oauthPairs, final String openIdOrUserId) {
-        for (final String pair : oauthPairs) {
-            if (StringUtils.containsIgnoreCase(pair, openIdOrUserId)) {
-                return pair;
-            }
-        }
+    //// Transient ////
+    /**
+     * Key of statistic blog published article count.
+     */
+    public static final String ID_T_STATISTIC_PUBLISHED_ARTICLE_COUNT = "statisticPublishedBlogArticleCount";
 
-        return null;
-    }
+    /**
+     * Key of statistic blog comment(published article) count.
+     */
+    public static final String ID_T_STATISTIC_PUBLISHED_BLOG_COMMENT_COUNT = "statisticPublishedBlogCommentCount";
 
     /**
      * Private constructor.
@@ -360,10 +274,20 @@ public final class Option {
      * Default preference.
      *
      * @author <a href="http://88250.b3log.org">Liang Ding</a>
-     * @version 2.1.0.9, Nov 23, 2015
+     * @version 2.2.0.2, Mar 17, 2019
      * @since 0.3.1
      */
     public static final class DefaultPreference {
+
+        /**
+         * Default favicon URL.
+         */
+        public static final String DEFAULT_FAVICON_URL = "https://static.b3log.org/images/brand/solo-32.png";
+
+        /**
+         * Default custom vars.
+         */
+        public static final String DEFAULT_CUSTOM_VARS = "key0=val0|key1=val1|key2=val2";
 
         /**
          * Default recent article display count.
@@ -403,7 +327,7 @@ public final class Option {
         /**
          * Default skin directory name.
          */
-        public static final String DEFAULT_SKIN_DIR_NAME = "Medium";
+        public static final String DEFAULT_SKIN_DIR_NAME = "Pinghsu";
 
         /**
          * Default language.
@@ -460,7 +384,7 @@ public final class Option {
         /**
          * Default external relevant articles display count.
          */
-        public static final int DEFAULT_EXTERNAL_RELEVANT_ARTICLES_DISPLAY_COUNT = 5;
+        public static final int DEFAULT_EXTERNAL_RELEVANT_ARTICLES_DISPLAY_COUNT = 0;
 
         /**
          * Most view articles display count.
@@ -478,11 +402,6 @@ public final class Option {
         public static final String DEFAULT_ALLOW_VISIT_DRAFT_VIA_PERMALINK = "false";
 
         /**
-         * Default allow register.
-         */
-        public static final String DEFAULT_ALLOW_REGISTER = "true";
-
-        /**
          * Default allow comment article/page.
          */
         public static final String DEFAULT_COMMENTABLE = "true";
@@ -491,16 +410,6 @@ public final class Option {
          * Default article list display style.
          */
         public static final String DEFAULT_ARTICLE_LIST_STYLE = "titleAndAbstract";
-
-        /**
-         * Default key of solo.
-         */
-        public static final String DEFAULT_KEY_OF_SOLO = "Your key";
-
-        /**
-         * Default reply notification template.
-         */
-        public static final String DEFAULT_REPLY_NOTIFICATION_TEMPLATE;
 
         /**
          * Default feed output mode.
@@ -512,42 +421,19 @@ public final class Option {
          */
         public static final int DEFAULT_FEED_OUTPUT_CNT = 10;
 
-        /**
-         * Default editor type.
-         */
-        public static final String DEFAULT_EDITOR_TYPE = "CodeMirror-Markdown";
-
-        /**
-         * Logger.
-         */
-        private static final Logger LOGGER = Logger.getLogger(DefaultPreference.class);
-
         static {
             final JSONArray signs = new JSONArray();
             final int signLength = 4;
 
-            try {
-                for (int i = 0; i < signLength; i++) {
-                    final JSONObject sign = new JSONObject();
-                    sign.put(Keys.OBJECT_ID, i);
-                    signs.put(sign);
-                    sign.put(Sign.SIGN_HTML, "");
-                }
-
-                // Sign(id=0) is the 'empty' sign, used for article user needn't a sign
-                DEFAULT_SIGNS = signs.toString();
-
-                final JSONObject replyNotificationTemplate = new JSONObject();
-                replyNotificationTemplate.put("subject", "${blogTitle}: New reply of your comment");
-                replyNotificationTemplate.put("body",
-                        "Your comment on post[<a href='${postLink}'>" + "${postTitle}</a>] received an reply: <p>${replier}"
-                                + ": <span><a href='${replyURL}'>${replyContent}</a></span></p>");
-                DEFAULT_REPLY_NOTIFICATION_TEMPLATE = replyNotificationTemplate.toString();
-            } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Creates sign error!", e);
-
-                throw new IllegalStateException(e);
+            for (int i = 0; i < signLength; i++) {
+                final JSONObject sign = new JSONObject();
+                sign.put(Keys.OBJECT_ID, i);
+                signs.put(sign);
+                sign.put(Sign.SIGN_HTML, "");
             }
+
+            // Sign(id=0) is the 'empty' sign, used for article user needn't a sign
+            DEFAULT_SIGNS = signs.toString();
         }
 
         /**

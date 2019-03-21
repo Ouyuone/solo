@@ -1,7 +1,7 @@
 {
   "name": "Solo",
-  "version": "2.2.0",
-  "description": "A blogging system written in Java, feel free to create your or your team own blog. 一个用 Java 实现的博客系统，为你或你的团队创建个博客吧！",
+  "version": "3.3.0",
+  "description": " 一款小而美的博客系统，专为程序员设计。",
   "homepage": "https://github.com/b3log/solo",
   "repository": {
     "type": "git",
@@ -10,11 +10,11 @@
   "bugs": {
     "url": "https://github.com/b3log/solo/issues"
   },
-  "license": "GPLv3",
+  "license": "AGPLv3",
   "private": true,
   "scripts": {
     "dev": "gulp watch",
-    "build": "gulp clean && gulp clean && gulp"
+    "build": "gulp"
   },
   "author": "Daniel <dl882509@gmail.com> (http://88250.b3log.org) & Vanessa <v@b3log.org> (http://vanessa.b3log.org)",
   "maintainers": [
@@ -28,15 +28,14 @@
     }
   ],
   "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-clean": "^0.4.0",
-    "gulp-clean-css": "^2.4.0",
-    "gulp-concat": "2.6.0",
-    "gulp-minify-css": "^1.2.4",
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
+    "gulp-concat": "^2.6.1",
     "gulp-rename": "^1.4.0",
     "gulp-sass": "^4.0.1",
-    "gulp-sequence": "^1.0.0",
-    "gulp-uglify": "^2.1.2",
-    "marked": "^0.3.6"
+    "gulp-uglify": "^3.0.1"
+  },
+  "dependencies": {
+    "vditor": "^1.1.10"
   }
 }

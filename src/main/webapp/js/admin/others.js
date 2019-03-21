@@ -1,6 +1,6 @@
 /*
  * Solo - A small and beautiful blogging system written in Java.
- * Copyright (c) 2010-2018, b3log.org & hacpai.com
+ * Copyright (c) 2010-2019, b3log.org & hacpai.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -23,31 +23,14 @@
  * @version 1.3.0.0, Nov 11, 2017
  */
 
-/* oterhs 相关操作 */
+/* others 相关操作 */
 admin.others = {
   /*
    * @description 初始化
    */
   init: function () {
     $("#tabOthers").tabs();
-
-    $.ajax({
-      url: latkeConfig.servePath + "/console/reply/notification/template",
-      type: "GET",
-      cache: false,
-      success: function (result, textStatus) {
-        $("#tipMsg").text(result.msg);
-        if (!result.sc) {
-          $("#loadMsg").text("");
-          return;
-        }
-
-        $("#replayEmailTemplateTitle").val(result.replyNotificationTemplate.subject);
-        $("#replayEmailTemplateBody").val(result.replyNotificationTemplate.body);
-
-        $("#loadMsg").text("");
-      }
-    });
+    $('#loadMsg').text('')
   },
   /*
    * @description 移除未使用的标签
@@ -147,31 +130,6 @@ admin.others = {
         if (0 === unusedTags.length) {
           return;
         }
-      }
-    });
-  },
-  /*
-   * @description 跟新回复提醒邮件模版
-   */
-  update: function () {
-    $("#loadMsg").text(Label.loadingLabel);
-    $("#tipMsg").text("");
-
-    var requestJSONObject = {
-      "replyNotificationTemplate": {
-        "subject": $("#replayEmailTemplateTitle").val(),
-        "body": $("#replayEmailTemplateBody").val()
-      }
-    };
-
-    $.ajax({
-      url: latkeConfig.servePath + "/console/reply/notification/template",
-      type: "PUT",
-      cache: false,
-      data: JSON.stringify(requestJSONObject),
-      success: function (result, textStatus) {
-        $("#tipMsg").text(result.msg);
-        $("#loadMsg").text("");
       }
     });
   }

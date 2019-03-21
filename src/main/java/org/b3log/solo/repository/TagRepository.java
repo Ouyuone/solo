@@ -1,6 +1,6 @@
 /*
  * Solo - A small and beautiful blogging system written in Java.
- * Copyright (c) 2010-2018, b3log.org & hacpai.com
+ * Copyright (c) 2010-2019, b3log.org & hacpai.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,31 +17,60 @@
  */
 package org.b3log.solo.repository;
 
-import org.b3log.latke.repository.Repository;
-import org.b3log.latke.repository.RepositoryException;
+import org.b3log.latke.Keys;
+import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.repository.*;
+import org.b3log.latke.repository.annotation.Repository;
+import org.b3log.solo.model.Tag;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Tag repository.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.1, Aug 12, 2010
+ * @version 1.0.0.4, Jan 28, 2019
  * @since 0.3.1
  */
-public interface TagRepository extends Repository {
+@Repository
+public class TagRepository extends AbstractRepository {
+
+    /**
+     * Public constructor.
+     */
+    public TagRepository() {
+        super(Tag.TAG);
+    }
+
+    /**
+     * Tag-Article relation repository.
+     */
+    @Inject
+    private TagArticleRepository tagArticleRepository;
 
     /**
      * Gets tags of an article specified by the article id.
-     * 
+     *
      * @param articleId the specified article id
      * @return a list of tags of the specified article, returns an empty list
      * if not found
      * @throws RepositoryException repository exception
      */
-    List<JSONObject> getByArticleId(final String articleId)
-        throws RepositoryException;
+    public List<JSONObject> getByArticleId(final String articleId) throws RepositoryException {
+        final List<JSONObject> ret = new ArrayList<>();
+
+        final List<JSONObject> tagArticleRelations = tagArticleRepository.getByArticleId(articleId);
+        for (final JSONObject tagArticleRelation : tagArticleRelations) {
+            final String tagId = tagArticleRelation.optString(Tag.TAG + "_" + Keys.OBJECT_ID);
+            final JSONObject tag = get(tagId);
+
+            ret.add(tag);
+        }
+
+        return ret;
+    }
 
     /**
      * Gets a tag by the specified tag title.
@@ -50,14 +79,18 @@ public interface TagRepository extends Repository {
      * @return a tag, {@code null} if not found
      * @throws RepositoryException repository exception
      */
-    JSONObject getByTitle(final String tagTitle) throws RepositoryException;
+    public JSONObject getByTitle(final String tagTitle) throws RepositoryException {
+        final Query query = new Query().setFilter(new PropertyFilter(Tag.TAG_TITLE, FilterOperator.EQUAL, tagTitle)).setPageCount(1);
 
-    /**
-     * Gets most used tags with the specified number.
-     *
-     * @param num the specified number
-     * @return a list of most used tags, returns an empty list if not found
-     * @throws RepositoryException repository exception
-     */
-    List<JSONObject> getMostUsedTags(final int num) throws RepositoryException;
+        final JSONObject ret = getFirst(query);
+        if (null == ret) {
+            return null;
+        }
+
+        final String tagId = ret.optString(Keys.OBJECT_ID);
+        final int articleCount = tagArticleRepository.getArticleCount(tagId);
+        ret.put(Tag.TAG_T_PUBLISHED_REFERENCE_COUNT, articleCount);
+
+        return ret;
+    }
 }

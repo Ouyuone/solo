@@ -1,7 +1,7 @@
 <#--
 
     Solo - A small and beautiful blogging system written in Java.
-    Copyright (c) 2010-2018, b3log.org & hacpai.com
+    Copyright (c) 2010-2019, b3log.org & hacpai.com
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,29 +25,25 @@
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width">
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1" media="(device-height: 568px)">
     <meta name="robots" content="none"/>
-    <title><#if blogTitle??>${blogTitle} - </#if>${title}</title>
+    <title>${title}<#if blogTitle??> - ${blogTitle}</#if></title>
     <link type="text/css" rel="stylesheet"
-          href="${staticServePath}/css/default-init${miniPostfix}.css?${staticResourceVersion}" charset="utf-8"/>
-    <link rel="icon" type="image/png" href="${staticServePath}/favicon.png"/>
-    <link rel="apple-touch-icon" href="${staticServePath}/favicon.png">
+          href="${staticServePath}/scss/start.css?${staticResourceVersion}" charset="utf-8"/>
+    <link rel="icon" type="image/png" href="${faviconURL}"/>
+    <link rel="apple-touch-icon" href="${faviconURL}">
 </head>
 <body>
 <div class="wrap">
-    <div class="content">
-        <div class="logo">
-            <a href="https://b3log.org" target="_blank">
-                <img width="128" border="0" alt="Solo" title="Solo" src="${staticServePath}/images/logo.png"/>
-            </a>
+    <div class="content-wrap">
+        <div class="content">
+            <div class="main">
+            <#nested>
+            </div>
         </div>
-        <div class="main">
-            <#nested >
-        </div>
-        <span class="clear"></span>
     </div>
-</div>
-<div class="footerWrapper">
-    <div class="footer">
-        Powered by <a href="https://b3log.org" target="_blank">B3log 开源</a> • <a href="https://hacpai.com/tag/Solo" target="_blank">Solo</a> ${version}
+    <div class="footerWrapper">
+        <div class="footer">
+            Powered by <a href="https://b3log.org" target="_blank">B3log 开源</a> • <a href="https://solo.b3log.org" target="_blank">Solo</a> ${version}
+        </div>
     </div>
 </div>
 </body>

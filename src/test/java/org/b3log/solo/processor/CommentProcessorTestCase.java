@@ -1,6 +1,6 @@
 /*
  * Solo - A small and beautiful blogging system written in Java.
- * Copyright (c) 2010-2018, b3log.org & hacpai.com
+ * Copyright (c) 2010-2019, b3log.org & hacpai.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,37 +19,28 @@ package org.b3log.solo.processor;
 
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
-import org.b3log.latke.model.User;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.solo.AbstractTestCase;
+import org.b3log.solo.MockHttpServletRequest;
+import org.b3log.solo.MockHttpServletResponse;
 import org.b3log.solo.model.Article;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.model.Page;
 import org.b3log.solo.service.ArticleMgmtService;
-import org.b3log.solo.service.InitService;
 import org.b3log.solo.service.PageMgmtService;
-import org.b3log.solo.service.UserQueryService;
 import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
-import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * {@link CommentProcessorTestCase} test case.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.0.0.4, Sep 20, 2018
+ * @version 1.0.0.5, Feb 10, 2019
  * @since 1.7.0
  */
 @Test(suiteName = "processor")
@@ -62,17 +53,7 @@ public class CommentProcessorTestCase extends AbstractTestCase {
      */
     @Test
     public void init() throws Exception {
-        final InitService initService = getInitService();
-
-        final JSONObject requestJSONObject = new JSONObject();
-        requestJSONObject.put(User.USER_EMAIL, "test@gmail.com");
-        requestJSONObject.put(User.USER_NAME, "Admin");
-        requestJSONObject.put(User.USER_PASSWORD, "pass");
-
-        initService.init(requestJSONObject);
-
-        final UserQueryService userQueryService = getUserQueryService();
-        Assert.assertNotNull(userQueryService.getUserByEmailOrUserName("test@gmail.com"));
+        super.init();
     }
 
     /**
@@ -82,16 +63,12 @@ public class CommentProcessorTestCase extends AbstractTestCase {
      */
     @Test(dependsOnMethods = "init")
     public void addPageComment() throws Exception {
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getServletContext()).thenReturn(mock(ServletContext.class));
-        when(request.getRequestURI()).thenReturn("/add-page-comment.do");
-        when(request.getMethod()).thenReturn("POST");
-        when(request.getAttribute(Keys.TEMAPLTE_DIR_NAME)).thenReturn(Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
-
-        CaptchaProcessor.CAPTCHA_ON = false;
+        final MockHttpServletRequest request = mockRequest();
+        request.setRequestURI("/page/comments");
+        request.setMethod("POST");
+        request.setAttribute(Keys.TEMAPLTE_DIR_NAME, Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
 
         final JSONObject requestJSON = new JSONObject();
-        requestJSON.put("captcha", "captcha123456");
         requestJSON.put("oId", addPage());
         requestJSON.put("commentName", "88250");
         requestJSON.put("commentEmail", "d@hacpai.com");
@@ -99,20 +76,14 @@ public class CommentProcessorTestCase extends AbstractTestCase {
         requestJSON.put("commentContent", "测试评论");
 
         final BufferedReader reader = new BufferedReader(new StringReader(requestJSON.toString()));
-        when(request.getReader()).thenReturn(reader);
+        request.setReader(reader);
 
-        final MockDispatcherServlet dispatcherServlet = new MockDispatcherServlet();
-        dispatcherServlet.init();
+        mockAdminLogin(request);
 
-        final StringWriter stringWriter = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(stringWriter);
+        final MockHttpServletResponse response = mockResponse();
+        mockDispatcherServletService(request, response);
 
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        when(response.getWriter()).thenReturn(printWriter);
-
-        dispatcherServlet.service(request, response);
-
-        final String content = stringWriter.toString();
+        final String content = response.body();
         Assert.assertTrue(StringUtils.contains(content, "\"sc\":true"));
     }
 
@@ -123,16 +94,12 @@ public class CommentProcessorTestCase extends AbstractTestCase {
      */
     @Test(dependsOnMethods = "init")
     public void addArticleComment() throws Exception {
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getServletContext()).thenReturn(mock(ServletContext.class));
-        when(request.getRequestURI()).thenReturn("/add-article-comment.do");
-        when(request.getMethod()).thenReturn("POST");
-        when(request.getAttribute(Keys.TEMAPLTE_DIR_NAME)).thenReturn(Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
-
-        CaptchaProcessor.CAPTCHA_ON = false;
+        final MockHttpServletRequest request = mockRequest();
+        request.setRequestURI("/article/comments");
+        request.setMethod("POST");
+        request.setAttribute(Keys.TEMAPLTE_DIR_NAME, Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
 
         final JSONObject requestJSON = new JSONObject();
-        requestJSON.put("captcha", "captcha123456");
         requestJSON.put("oId", addArticle());
         requestJSON.put("commentName", "88250");
         requestJSON.put("commentEmail", "d@hacpai.com");
@@ -140,20 +107,14 @@ public class CommentProcessorTestCase extends AbstractTestCase {
         requestJSON.put("commentContent", "测试评论");
 
         final BufferedReader reader = new BufferedReader(new StringReader(requestJSON.toString()));
-        when(request.getReader()).thenReturn(reader);
+        request.setReader(reader);
 
-        final MockDispatcherServlet dispatcherServlet = new MockDispatcherServlet();
-        dispatcherServlet.init();
+        mockAdminLogin(request);
 
-        final StringWriter stringWriter = new StringWriter();
-        final PrintWriter printWriter = new PrintWriter(stringWriter);
+        final MockHttpServletResponse response = mockResponse();
+        mockDispatcherServletService(request, response);
 
-        final HttpServletResponse response = mock(HttpServletResponse.class);
-        when(response.getWriter()).thenReturn(printWriter);
-
-        dispatcherServlet.service(request, response);
-
-        final String content = stringWriter.toString();
+        final String content = response.body();
         Assert.assertTrue(StringUtils.contains(content, "\"sc\":true"));
     }
 
@@ -190,7 +151,7 @@ public class CommentProcessorTestCase extends AbstractTestCase {
         article.put(Article.ARTICLE_CONTENT, "article1 content");
         article.put(Article.ARTICLE_TAGS_REF, "tag1, tag2, tag3");
         article.put(Article.ARTICLE_PERMALINK, "article1 permalink");
-        article.put(Article.ARTICLE_IS_PUBLISHED, true);
+        article.put(Article.ARTICLE_STATUS, Article.ARTICLE_STATUS_C_PUBLISHED);
         article.put(Common.POST_TO_COMMUNITY, true);
         article.put(Article.ARTICLE_SIGN_ID, "1");
         article.put(Article.ARTICLE_COMMENTABLE, true);

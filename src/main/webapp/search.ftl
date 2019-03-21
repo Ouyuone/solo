@@ -1,7 +1,7 @@
 <#--
 
     Solo - A small and beautiful blogging system written in Java.
-    Copyright (c) 2010-2018, b3log.org & hacpai.com
+    Copyright (c) 2010-2019, b3log.org & hacpai.com
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,17 +23,17 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width">
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1" media="(device-height: 568px)">
-    <title>${keyword} - ${blogTitle}${searchLabel}</title>
+    <title>${searchLabel} - ${blogTitle}${searchLabel}</title>
     <link type="text/css" rel="stylesheet"
-          href="${staticServePath}/css/default-init${miniPostfix}.css?${staticResourceVersion}" charset="utf-8"/>
-    <link rel="icon" type="image/png" href="${staticServePath}/favicon.png"/>
-    <link rel="apple-touch-icon" href="${staticServePath}/favicon.png">
+          href="${staticServePath}/scss/start.css?${staticResourceVersion}" charset="utf-8"/>
+    <link rel="icon" type="image/png" href="${faviconURL}"/>
+    <link rel="apple-touch-icon" href="${faviconURL}">
 </head>
-<body>
+<body class="search__body">
 <div class="search__header fn-clear">
-    <a href="${servePath}"><img class="fn-left" width="44" border="0" alt="Solo" title="Solo" src="${staticServePath}/images/logo.png"/></a>
-    <div class="search__input fn-left">
-        <input value="${keyword}" id="keyword" onkeypress="if(event.keyCode===13){document.getElementById('searchBtn').click()}">
+    <a href="${servePath}"><img width="32" border="0" alt="Solo" title="Solo" src="${faviconURL}"/></a>
+    <div class="search__input">
+        <input value="${keyword}" id="keyword" type="text" onkeypress="if(event.keyCode===13){document.getElementById('searchBtn').click()}">
         <button id="searchBtn" onclick="window.location.href='${servePath}/search?keyword=' + document.getElementById('keyword').value">搜索</button>
     </div>
     <span class="fn-right">
@@ -41,8 +41,7 @@
         <a href="${servePath}/admin-index.do#main">${adminLabel}</a> &nbsp;
         <a href="${logoutURL}">${logoutLabel}</a>
     <#else>
-        <a href="${loginURL}">${loginLabel}</a>
-        &nbsp;   <a href="${servePath}/register">${registerLabel}</a>
+        <a href="${servePath}/start">${startToUseLabel}</a>
     </#if>
         </span>
 </div>
@@ -68,13 +67,12 @@
                 ${article.articleViewCount} ${viewLabel}
                 </div>
             </header>
-            <div class="content-reset">
+            <div class="vditor-reset">
             ${article.articleAbstract}
             </div>
             <footer>
                 <#list article.articleTags?split(",") as articleTag>
                     <a class="tag" rel="tag" href="${servePath}/tags/${articleTag?url('UTF-8')}">${articleTag}</a>
-                    <#if articleTag_has_next> · ‎</#if>
                 </#list>
             </footer>
         </article>

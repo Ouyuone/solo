@@ -1,6 +1,6 @@
 /*
  * Solo - A small and beautiful blogging system written in Java.
- * Copyright (c) 2010-2018, b3log.org & hacpai.com
+ * Copyright (c) 2010-2019, b3log.org & hacpai.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -25,16 +25,16 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Latkes;
-import org.b3log.latke.ioc.LatkeBeanManagerImpl;
+import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.service.LangPropsServiceImpl;
 import org.b3log.latke.util.Callstacks;
 import org.b3log.latke.util.Stopwatchs;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.safety.Whitelist;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,12 +47,12 @@ import java.util.concurrent.*;
 /**
  * <a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> utilities.
  * <p>
- * Uses the <a href="https://github.com/chjj/marked">marked</a> as the processor, if not found this command, try
+ * Uses the <a href="https://github.com/b3log/markdown-http">markdown-http</a> as the processor, if not found this command, try
  * built-in <a href="https://github.com/vsch/flexmark-java">flexmark</a> instead.
  * </p>
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 2.3.1.1, Sep 25, 2018
+ * @version 2.3.1.5, Mar 17, 2019
  * @since 0.4.5
  */
 public final class Markdowns {
@@ -63,11 +63,6 @@ public final class Markdowns {
     private static final Logger LOGGER = Logger.getLogger(Markdowns.class);
 
     /**
-     * Language service.
-     */
-    private static final LangPropsService LANG_PROPS_SERVICE = LatkeBeanManagerImpl.getInstance().getReference(LangPropsServiceImpl.class);
-
-    /**
      * Markdown cache.
      */
     private static final Map<String, JSONObject> MD_CACHE = new ConcurrentHashMap<>();
@@ -75,7 +70,7 @@ public final class Markdowns {
     /**
      * Markdown to HTML timeout.
      */
-    private static final int MD_TIMEOUT = 2000;
+    private static final int MD_TIMEOUT = 10000;
 
     /**
      * Built-in MD engine options.
@@ -97,23 +92,23 @@ public final class Markdowns {
     private static final HtmlRenderer RENDERER = HtmlRenderer.builder(OPTIONS).build();
 
     /**
-     * Marked engine serve path.
+     * Markdown engine serve path.
      */
-    private static final String MARKED_ENGINE_URL = "http://localhost:8250";
+    private static final String MARKDOWN_ENGINE_URL = "http://localhost:8250";
 
     /**
-     * Whether marked is available.
+     * Whether markdown-http is available.
      */
-    public static boolean MARKED_AVAILABLE;
+    public static boolean MARKDOWN_HTTP_AVAILABLE;
 
     static {
         try {
-            final URL url = new URL(MARKED_ENGINE_URL);
+            final URL url = new URL(MARKDOWN_ENGINE_URL);
             final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
 
             try (final OutputStream outputStream = conn.getOutputStream()) {
-                IOUtils.write("Solo 大法好", outputStream, "UTF-8");
+                IOUtils.write("昔日舞曲", outputStream, "UTF-8");
             }
 
             String html;
@@ -123,23 +118,29 @@ public final class Markdowns {
 
             conn.disconnect();
 
-            MARKED_AVAILABLE = StringUtils.contains(html, "<p>Solo 大法好</p>");
+            MARKDOWN_HTTP_AVAILABLE = StringUtils.contains(html, "<p>昔日舞曲</p>");
 
-            if (MARKED_AVAILABLE) {
-                LOGGER.log(Level.DEBUG, "[marked] is available, uses it for markdown processing");
+            if (MARKDOWN_HTTP_AVAILABLE) {
+                LOGGER.log(Level.INFO, "[markdown-http] is available, uses it for markdown processing");
             } else {
-                LOGGER.log(Level.DEBUG, "[marked] is not available, uses built-in [flexmark] for markdown processing");
+                LOGGER.log(Level.INFO, "[markdown-http] is not available, uses built-in [flexmark] for markdown processing");
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.INFO, "[marked] is not available, uses built-in [flexmark] for markdown processing. " +
+            LOGGER.log(Level.INFO, "[markdown-http] is not available, uses built-in [flexmark] for markdown processing. " +
                     "Please read FAQ section in user guide (https://hacpai.com/article/1492881378588) for more details.");
         }
     }
 
     /**
-     * Private constructor.
+     * Cleans the specified HTML.
+     *
+     * @param html the specified HTML
+     * @return html
      */
-    private Markdowns() {
+    public static String clean(final String html) {
+        String ret = Jsoup.clean(html, Whitelist.relaxed().addAttributes("code", "class") /* 允许代码块语言高亮信息 */);
+
+        return ret;
     }
 
     /**
@@ -159,21 +160,33 @@ public final class Markdowns {
             return cachedHTML;
         }
 
+        final LangPropsService langPropsService = BeanManager.getInstance().getReference(LangPropsService.class);
+
         final ExecutorService pool = Executors.newSingleThreadExecutor();
         final long[] threadId = new long[1];
 
         final Callable<String> call = () -> {
             threadId[0] = Thread.currentThread().getId();
 
-            String html = LANG_PROPS_SERVICE.get("contentRenderFailedLabel");
+            String html = langPropsService.get("contentRenderFailedLabel");
 
-            if (MARKED_AVAILABLE) {
-                html = toHtmlByMarked(markdownText);
-                if (!StringUtils.startsWith(html, "<p>")) {
-                    html = "<p>" + html + "</p>";
+            if (MARKDOWN_HTTP_AVAILABLE) {
+                try {
+                    html = toHtmlByMarkdownHTTP(markdownText);
+                    if (!StringUtils.startsWith(html, "<p>")) {
+                        html = "<p>" + html + "</p>";
+                    }
+                } catch (final Exception e) {
+                    LOGGER.log(Level.WARN, "Failed to use [markdown-http] for markdown [md=" + StringUtils.substring(markdownText, 0, 256) + "]: " + e.getMessage());
+
+                    com.vladsch.flexmark.util.ast.Node document = PARSER.parse(markdownText);
+                    html = RENDERER.render(document);
+                    if (!StringUtils.startsWith(html, "<p>")) {
+                        html = "<p>" + html + "</p>";
+                    }
                 }
             } else {
-                com.vladsch.flexmark.ast.Node document = PARSER.parse(markdownText);
+                com.vladsch.flexmark.util.ast.Node document = PARSER.parse(markdownText);
                 html = RENDERER.render(document);
                 if (!StringUtils.startsWith(html, "<p>")) {
                     html = "<p>" + html + "</p>";
@@ -183,7 +196,7 @@ public final class Markdowns {
             final Document doc = Jsoup.parse(html);
             doc.select("a").forEach(a -> {
                 final String src = a.attr("href");
-                if (!StringUtils.startsWithIgnoreCase(src, Latkes.getServePath())) {
+                if (!StringUtils.startsWithIgnoreCase(src, Latkes.getServePath()) && !StringUtils.startsWithIgnoreCase(src, "#")) {
                     a.attr("target", "_blank");
                 }
             });
@@ -191,6 +204,7 @@ public final class Markdowns {
 
             String ret = doc.select("body").html();
             ret = StringUtils.trim(ret);
+            ret = Images.qiniuImgProcessing(ret);
 
             // cache it
             putHTML(markdownText, ret);
@@ -223,11 +237,11 @@ public final class Markdowns {
             Stopwatchs.end();
         }
 
-        return LANG_PROPS_SERVICE.get("contentRenderFailedLabel");
+        return langPropsService.get("contentRenderFailedLabel");
     }
 
-    private static String toHtmlByMarked(final String markdownText) throws Exception {
-        final URL url = new URL(MARKED_ENGINE_URL);
+    private static String toHtmlByMarkdownHTTP(final String markdownText) throws Exception {
+        final URL url = new URL(MARKDOWN_ENGINE_URL);
         final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
 
@@ -272,5 +286,11 @@ public final class Markdowns {
         final JSONObject value = new JSONObject();
         value.put("data", html);
         MD_CACHE.put(hash, value);
+    }
+
+    /**
+     * Private constructor.
+     */
+    private Markdowns() {
     }
 }

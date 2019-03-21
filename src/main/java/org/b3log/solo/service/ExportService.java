@@ -1,6 +1,6 @@
 /*
  * Solo - A small and beautiful blogging system written in Java.
- * Copyright (c) 2010-2018, b3log.org & hacpai.com
+ * Copyright (c) 2010-2019, b3log.org & hacpai.com
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@ package org.b3log.solo.service;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.b3log.latke.Keys;
-import org.b3log.latke.ioc.inject.Inject;
+import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.model.Plugin;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
  * Export service.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding</a>
- * @version 1.1.0.1, Sep 16, 2018
+ * @version 1.1.0.2, Mar 10, 2019
  * @since 2.5.0
  */
 @Service
@@ -139,7 +139,8 @@ public class ExportService {
      *         {
      *             "front": "", // yaml front matter,
      *             "title": "",
-     *             "content": ""
+     *             "content": "",
+     *             "created": long
      *         }, ....
      *     ],
      *     "passwords": [], // format is same as post
@@ -175,12 +176,13 @@ public class ExportService {
             one.put("front", new Yaml().dump(front));
             one.put("title", title);
             one.put("content", article.optString(Article.ARTICLE_CONTENT));
+            one.put("created", article.optLong(Article.ARTICLE_CREATED));
 
             if (StringUtils.isNotBlank(article.optString(Article.ARTICLE_VIEW_PWD))) {
                 passwords.add(one);
 
                 continue;
-            } else if (article.optBoolean(Article.ARTICLE_IS_PUBLISHED)) {
+            } else if (Article.ARTICLE_STATUS_C_PUBLISHED == article.optInt(Article.ARTICLE_STATUS)) {
                 posts.add(one);
 
                 continue;

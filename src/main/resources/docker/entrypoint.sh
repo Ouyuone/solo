@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Solo - A small and beautiful blogging system written in Java.
-# Copyright (c) 2010-2018, b3log.org & hacpai.com
+# Copyright (c) 2010-2019, b3log.org & hacpai.com
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -41,13 +41,6 @@ if [ ! -f "/opt/b3log/solo/WEB-INF/classes/local.properties" ]; then
      -e "s|{{SERVER_PORT}}|${SERVER_PORT:-8080}|g" \
     > /opt/b3log/solo/WEB-INF/classes/latke.properties
 
-    cat /opt/b3log/tmp/mail.properties | sed \
-     -e "s|{{EMAIL_ADDRESS}}|${EMAIL_ADDRESS}|g" \
-     -e "s|{{EMAIL_PASSWORD}}|${EMAIL_PASSWORD}|g" \
-     -e "s|{{SMTP_HOST}}|${SMTP_HOST:-smtp.gmail.com}|g" \
-     -e "s|{{SMTP_PROT}}|${SMTP_PROT:-587}|g" \
-     -e "s|{{SMTP_SOCKETFACTORY_PORT}}|${SMTP_SOCKETFACTORY_PORT:-465}|g" \
-    > /opt/b3log/solo/WEB-INF/classes/mail.properties
     rm -rf /opt/b3log/tmp
 fi
 
